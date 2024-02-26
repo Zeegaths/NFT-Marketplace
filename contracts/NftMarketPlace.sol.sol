@@ -25,7 +25,7 @@ contract NFTMarketplaceV2 {
         nftContract = ERC721(_nftAddress);
     }
 
-    function offerNFT(uint256 _tokenId, uint256 _price) external {
+    function listNFT(uint256 _tokenId, uint256 _price) external {
         require(nftContract.ownerOf(_tokenId) == msg.sender, "Only the owner can offer the NFT");
         require(!offers[_tokenId].isAvailable, "NFT is already offered");
 
