@@ -4,8 +4,13 @@ pragma solidity ^0.8.20;
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
-contract NFTMarketplaceV2 {
+contract NFTMarketplace {
     using SafeMath for uint256;
+
+// keep track of token Ids
+    using Counters for Counters.Counter;
+    Counters.Counter private _tokenIds;
+    Counters.Counter private _itemsSold;
 
     struct NFTOffer {
         address seller;
@@ -20,12 +25,30 @@ contract NFTMarketplaceV2 {
     event NFTPurchased(uint256 indexed tokenId, address indexed seller, address indexed buyer, uint256 price);
 
     ERC721 public nftContract;
+    address public owner;
 
-    constructor(address _nftAddress) {
-        nftContract = ERC721(_nftAddress);
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Only the owner can call this function");
+        _;
     }
 
-//add NFT to marketplace
+    constructor() ERC721("NFTMarketplace", "NFTM") {
+        owner = msg.sender;
+    }
+
+    // Mint new NFTs
+    function mintNFT(string memory tokenURI) public payable returns (uint256) {       
+
+        _tokenIds.increment();
+        uint256 newTokenId = _tokenIds.current();
+        _mint(msg.sender, newTokenId);
+        _setTokenURI(newTokenId, tokenURI);
+
+        emit NFTMinted(newTokenId, msg.sender);
+        return newTokenId;
+    }
+
+    // Add NFT to the marketplace
     function listNFT(uint256 _tokenId, uint256 _price) external {
         require(nftContract.ownerOf(_tokenId) == msg.sender, "Only the owner can offer the NFT");
         require(!offers[_tokenId].isAvailable, "NFT is already offered");
@@ -36,8 +59,7 @@ contract NFTMarketplaceV2 {
         emit NFTOffered(_tokenId, msg.sender, _price);
     }
 
-    //buy NFT
-
+    // Buy NFT
     function purchaseNFT(uint256 _tokenId) external payable {
         NFTOffer memory offer = offers[_tokenId];
         require(offer.isAvailable, "NFT is not offered for sale");
@@ -52,13 +74,13 @@ contract NFTMarketplaceV2 {
         emit NFTPurchased(_tokenId, seller, msg.sender, offer.price);
     }
 
-//see NFTs on offer
+    // See NFTs on offer
     function getOffer(uint256 _tokenId) external view returns (address, uint256, bool) {
         NFTOffer memory offer = offers[_tokenId];
         return (offer.seller, offer.price, offer.isAvailable);
     }
 
-//See your offered NFTs
+    // See your offered NFTs
     function getMyOfferedTokens() external view returns (uint256[] memory) {
         return userTokens[msg.sender];
     }
