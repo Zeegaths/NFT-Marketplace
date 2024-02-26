@@ -21,8 +21,6 @@ contract NFTMarketplace {
     mapping(uint256 => NFTOffer) public offers;
     mapping(address => uint256[]) public userTokens;
 
-
-    event NFTMinted(uint256 indexed tokenId, address indexed creator);
     event NFTOffered(uint256 indexed tokenId, address indexed seller, uint256 price);
     event NFTPurchased(uint256 indexed tokenId, address indexed seller, address indexed buyer, uint256 price);
 
@@ -39,15 +37,8 @@ contract NFTMarketplace {
     }
 
     // Mint new NFTs
-    function mintNFT(string memory tokenURI) public payable returns (uint256) {       
-
-        _tokenIds.increment();
-        uint256 newTokenId = _tokenIds.current();
-        _mint(msg.sender, newTokenId);
-        _setTokenURI(newTokenId, tokenURI);
-
-        emit NFTMinted(newTokenId, msg.sender);
-        return newTokenId;
+    function mintNFT(address to, uint256 tokenId) external onlyOwner {
+        nftContract.mint(to, tokenId);
     }
 
     // Add NFT to the marketplace

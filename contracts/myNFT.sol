@@ -1,20 +1,20 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.17;
+pragma solidity ^0.8.20;
 
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/utils/Counters.sol";
 
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+contract NFT is ERC721 {
+    using Counters for Counters.Counter;
+    Counters.Counter private _tokenIds;
 
-contract MyNft is ERC721URIStorage, Ownable {
-    constructor() ERC721("ZarahToken", "ZT") Ownable (msg.sender) {}  
+    constructor() ERC721("MyNFT", "NFT") {}
 
-    function mint (
-        address _to,
-        uint256 _tokenId,
-        string calldata _uri
-    ) external onlyOwner {_mint(_to, _tokenId);
-    _setTokenURI(_tokenId, _uri);
-    
-        
+    function mintNFT(address to, string memory tokenURI) public returns (uint256) {
+        _tokenIds.increment();
+        uint256 newTokenId = _tokenIds.current();
+        _mint(to, newTokenId);
+        _setTokenURI(newTokenId, tokenURI);
+        return newTokenId;
     }
 }
