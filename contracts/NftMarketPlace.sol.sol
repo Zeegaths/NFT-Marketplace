@@ -25,6 +25,7 @@ contract NFTMarketplaceV2 {
         nftContract = ERC721(_nftAddress);
     }
 
+//add NFT to marketplace
     function listNFT(uint256 _tokenId, uint256 _price) external {
         require(nftContract.ownerOf(_tokenId) == msg.sender, "Only the owner can offer the NFT");
         require(!offers[_tokenId].isAvailable, "NFT is already offered");
@@ -34,6 +35,8 @@ contract NFTMarketplaceV2 {
 
         emit NFTOffered(_tokenId, msg.sender, _price);
     }
+
+    //buy NFT
 
     function purchaseNFT(uint256 _tokenId) external payable {
         NFTOffer memory offer = offers[_tokenId];
@@ -49,11 +52,13 @@ contract NFTMarketplaceV2 {
         emit NFTPurchased(_tokenId, seller, msg.sender, offer.price);
     }
 
+//see NFTs on offer
     function getOffer(uint256 _tokenId) external view returns (address, uint256, bool) {
         NFTOffer memory offer = offers[_tokenId];
         return (offer.seller, offer.price, offer.isAvailable);
     }
 
+//See your offered NFTs
     function getMyOfferedTokens() external view returns (uint256[] memory) {
         return userTokens[msg.sender];
     }
