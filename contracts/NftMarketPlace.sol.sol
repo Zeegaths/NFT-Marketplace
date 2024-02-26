@@ -21,6 +21,8 @@ contract NFTMarketplace {
     mapping(uint256 => NFTOffer) public offers;
     mapping(address => uint256[]) public userTokens;
 
+
+    event NFTMinted(uint256 indexed tokenId, address indexed creator);
     event NFTOffered(uint256 indexed tokenId, address indexed seller, uint256 price);
     event NFTPurchased(uint256 indexed tokenId, address indexed seller, address indexed buyer, uint256 price);
 
